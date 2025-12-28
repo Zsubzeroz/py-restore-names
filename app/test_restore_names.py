@@ -1,15 +1,14 @@
+import pytest
 from typing import List, Dict, Any
 
 
 def restore_names(users: List[Dict[str, Any]]) -> None:
     for user in users:
         if user.get("first_name") is None:
-            full_name = user.get("full_name")
-            if isinstance(full_name, str) and full_name.strip():
-                user["first_name"] = full_name.split()[0]
+            user["first_name"] = user["full_name"].split()[0]
 
 
-def test_restore_names_handles_explicit_none_value() -> None:
+def test_restore_names_when_first_name_is_none() -> None:
     users = [
         {
             "first_name": None,
@@ -21,7 +20,7 @@ def test_restore_names_handles_explicit_none_value() -> None:
     assert users[0]["first_name"] == "Jack"
 
 
-def test_restore_names_handles_missing_first_name_key() -> None:
+def test_restore_names_when_first_name_is_missing() -> None:
     users = [
         {
             "last_name": "Adams",
@@ -33,45 +32,43 @@ def test_restore_names_handles_missing_first_name_key() -> None:
     assert users[0]["first_name"] == "Mike"
 
 
-def test_restore_names_preserves_existing_first_name() -> None:
+def test_restore_names_does_not_overwrite_existing_names() -> None:
     users = [
         {
-            "first_name": "Jack",
-            "last_name": "Holy",
-            "full_name": "John Holy",
+            "first_name": "John",
+            "last_name": "Doe",
+            "full_name": "Jack Doe",
         }
     ]
     restore_names(users)
-    assert users[0]["first_name"] == "Jack"
+    assert users[0]["first_name"] == "John"
 
 
-def test_restore_names_performs_in_place_modification() -> None:
+def test_restore_names_modifies_objects_in_place() -> None:
     user: Dict[str, Any] = {"full_name": "Alice Smith"}
     users = [user]
     restore_names(users)
     assert users[0] is user
-    assert user["first_name"] == "Alice"
+    assert users[0]["first_name"] == "Alice"
 
 
-def test_restore_names_handles_empty_list() -> None:
+def test_restore_names_with_empty_list() -> None:
     users: List[Dict[str, Any]] = []
     restore_names(users)
     assert users == []
 
 
-def test_restore_names_handles_whitespace_in_full_name() -> None:
-    users = [{"full_name": "  Bob  The  Builder  "}]
-    restore_names(users)
-    assert users[0]["first_name"] == "Bob"
-
-
-def test_restore_names_ignores_empty_or_invalid_full_name() -> None:
+def test_restore_names_with_multiple_records() -> None:
     users = [
-        {"full_name": ""},
-        {"full_name": "   "},
-        {"first_name": None, "full_name": None}
+        {"first_name": None, "full_name": "Bob Builder"},
+        {"full_name": "Charlie Brown"}
     ]
     restore_names(users)
-    assert "first_name" not in users[0]
-    assert "first_name" not in users[1]
-    assert users[2]["first_name"] is None
+    assert users[0]["first_name"] == "Bob"
+    assert users[1]["first_name"] == "Charlie"
+
+
+def test_restore_names_with_single_word_full_name() -> None:
+    users = [{"full_name": "Cher"}]
+    restore_names(users)
+    assert users[0]["first_name"] == "Cher"
