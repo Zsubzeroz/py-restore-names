@@ -6,10 +6,12 @@ def restore_names(users: List[Dict[str, Any]]) -> None:
         if user.get("first_name") is None:
             full_name = user.get("full_name")
             if full_name:
-                user["first_name"] = full_name.split()[0]
+                parts = full_name.split()
+                if parts:
+                    user["first_name"] = parts[0]
 
 
-def test_restore_names_handles_none_value() -> None:
+def test_restore_names_with_explicit_none() -> None:
     users = [
         {
             "first_name": None,
@@ -21,7 +23,7 @@ def test_restore_names_handles_none_value() -> None:
     assert users[0]["first_name"] == "Jack"
 
 
-def test_restore_names_handles_missing_key() -> None:
+def test_restore_names_with_missing_first_name_key() -> None:
     users = [
         {
             "last_name": "Adams",
@@ -33,19 +35,19 @@ def test_restore_names_handles_missing_key() -> None:
     assert users[0]["first_name"] == "Mike"
 
 
-def test_restore_names_does_not_overwrite_existing() -> None:
+def test_restore_names_does_not_overwrite_existing_names() -> None:
     users = [
         {
-            "first_name": "John",
-            "last_name": "Doe",
-            "full_name": "Jack Doe",
+            "first_name": "Jack",
+            "last_name": "Holy",
+            "full_name": "John Holy",
         }
     ]
     restore_names(users)
-    assert users[0]["first_name"] == "John"
+    assert users[0]["first_name"] == "Jack"
 
 
-def test_restore_names_modifies_in_place() -> None:
+def test_restore_names_modifies_list_in_place() -> None:
     user: Dict[str, Any] = {"full_name": "Alice Smith"}
     users = [user]
     restore_names(users)
@@ -53,7 +55,7 @@ def test_restore_names_modifies_in_place() -> None:
     assert user["first_name"] == "Alice"
 
 
-def test_restore_names_with_empty_list() -> None:
+def test_restore_names_handles_empty_list() -> None:
     users: List[Dict[str, Any]] = []
     restore_names(users)
     assert users == []
@@ -69,7 +71,7 @@ def test_restore_names_with_multiple_users() -> None:
     assert users[1]["first_name"] == "Charlie"
 
 
-def test_restore_names_with_single_name() -> None:
-    users = [{"full_name": "Cher"}]
+def test_restore_names_with_complex_whitespace() -> None:
+    users = [{"full_name": "  Dave   Miller  "}]
     restore_names(users)
-    assert users[0]["first_name"] == "Cher"
+    assert users[0]["first_name"] == "Dave"
