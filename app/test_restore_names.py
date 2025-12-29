@@ -1,11 +1,9 @@
 from typing import List, Dict, Any
 
-
 def restore_names(users: List[Dict[str, Any]]) -> None:
     for user in users:
         if user.get("first_name") is None:
             user["first_name"] = user["full_name"].split()[0]
-
 
 def test_restore_names_handles_none_value() -> None:
     users = [
@@ -18,7 +16,6 @@ def test_restore_names_handles_none_value() -> None:
     restore_names(users)
     assert users[0]["first_name"] == "Jack"
 
-
 def test_restore_names_handles_missing_key() -> None:
     users = [
         {
@@ -30,14 +27,12 @@ def test_restore_names_handles_missing_key() -> None:
     assert "first_name" in users[0]
     assert users[0]["first_name"] == "Mike"
 
-
 def test_restore_names_modifies_in_place() -> None:
     user = {"full_name": "Alice Smith"}
     users = [user]
     restore_names(users)
     assert users[0] is user
     assert user["first_name"] == "Alice"
-
 
 def test_restore_names_no_overwrite() -> None:
     users = [{"first_name": "Jack", "full_name": "John Doe"}]
